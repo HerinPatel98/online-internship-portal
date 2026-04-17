@@ -15,6 +15,50 @@ if (!isset($_SESSION['username'])) {
 <head>
     <title>HeroIntern | Dashboard</title>
     <link rel="stylesheet" href="../styles/dashboard.css">
+
+    <style>
+        .fixed-app-trigger {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1001;
+}
+
+.app-btn-link {
+    display: flex;
+    align-items: center;
+    background: #6366f1; /* Your primary indigo */
+    color: white;
+    text-decoration: none;
+    padding: 12px 20px;
+    border-radius: 30px 0 0 30px; /* Rounded only on the left */
+    box-shadow: -4px 4px 15px rgba(99, 102, 241, 0.3);
+    transition: all 0.3s ease;
+}
+
+.app-btn-link:hover {
+    padding-right: 35px; /* Slight slide-out effect */
+    background: #4f46e5;
+    color: white;
+}
+
+.app-icon {
+    font-size: 1.2rem;
+    margin-right: 10px;
+}
+
+.app-text {
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+    .app-text { display: none; } /* On mobile, only show the icon */
+    .app-btn-link { padding: 12px; border-radius: 50% 0 0 50%; }
+}
+    </style>
 </head>
 
 <body>
@@ -34,14 +78,19 @@ if (!isset($_SESSION['username'])) {
                 <a href="#jobs" class="navbar-link">Jobs</a>
             </div>
             <div class="navbar-right">
-                <span class="navbar-user">Welcome, <?= htmlspecialchars($_SESSION['username']) ?></span>
-                <button class="modular-btn profile-btn" onclick="window.location.href='./userProfile.php'">
-                    <span class="btn-text">Profile</span>
-                </button>
-                <button class="logout-btn" onclick="window.location.href='./user_logout.php'">
-                    <span class="btn-text">Logout</span>
-                </button>
-            </div>
+    <div class="user-greeting">
+        <span class="user-welcome">Welcome,</span>
+        <span class="user-name"><?= htmlspecialchars($_SESSION['username']) ?></span>
+    </div>
+    <div class="nav-action-group">
+        <a href="./userProfile.php" class="nav-btn profile">
+            <span class="nav-icon">👤</span> Profile
+        </a>
+        <a href="./user_logout.php" class="nav-btn logout">
+            <span class="nav-icon">🚪</span> Logout
+        </a>
+    </div>
+</div>
         </div>
     </nav>
     <header>
@@ -94,7 +143,12 @@ if (!isset($_SESSION['username'])) {
                 <?php require_once("./dynamicJobCard.php"); ?>
             </div>
         </div>
-        <div class="myApp-container"><a href="./UserDetail.php"><button type="button" class="myApp-btn">My Application </button></a></div>
+        <div class="fixed-app-trigger">
+            <a href="./UserDetail.php" class="app-btn-link">
+            <span class="app-icon">📋</span>
+            <span class="app-text">My Applications</span>
+    </a>
+</div>
     </div>
     <!-- TAB SWITCHING SCRIPT ADDED BELOW -->
     <script>

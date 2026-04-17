@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="login-container">
         <div class="rocket">🚀</div>
         <h2>Login to Hero Intern</h2>
-        <p>Access your internship portal or <a onclick="history.back()" style="color: blue; cursor: pointer;">Go Back</a></p>
+        <p>Access your internship portal or <a href="./" style="color: blue; cursor: pointer;">Go Back</a></p>
         <form method="POST">
             <input type="text" name="username" placeholder="Username" autocomplete required />
             <input type="password" name="password" placeholder="Password" required />

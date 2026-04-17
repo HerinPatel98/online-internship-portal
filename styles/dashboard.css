@@ -514,47 +514,71 @@ section p {
 }
 
 /* Profile and Logout Buttons */
-.profile-btn,
-.logout-btn {
-    display: inline-flex;
+
+.navbar-right {
+    display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 8px 16px;
-    font-size: 1rem;
+    gap: 20px;
+}
+
+.user-greeting {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    line-height: 1.2;
+}
+
+.user-welcome {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.user-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #dcddde;
+}
+
+.nav-action-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.nav-btn {
+    text-decoration: none;
+    font-size: 0.85rem;
     font-weight: 600;
-    border-radius: 999px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     border: 1px solid transparent;
-    background: linear-gradient(180deg, #f1f3fb 0%, #e2e6f0 100%);
-    color: #334155;
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s, transform 0.2s;
 }
 
-.profile-btn:hover,
-.logout-btn:hover {
-    background: linear-gradient(180deg, #e2e6f0 0%, #d1d5de 100%);
-    border-color: #1e293b;
-    transform: translateY(-2px);
+/* Profile Button - Professional Blue */
+.nav-btn.profile {
+    background-color: #f1f5f9;
+    color: #475569;
 }
 
-.profile-btn {
-    background: linear-gradient(180deg, #eaf0ff 0%, #dbe4f5 100%);
-    color: #1d4ed8;
+.nav-btn.profile:hover {
+    background-color: #e2e8f0;
+    color: #1e293b;
 }
 
-.profile-btn:hover {
-    background: linear-gradient(180deg, #dbe4f5 0%, #c7d2e8 100%);
-    border-color: #1e40af;
+/* Logout Button - Subtle Warning Red */
+.nav-btn.logout {
+    background-color: #fff1f2;
+    color: #e11d48;
 }
 
-.logout-btn {
-    background: linear-gradient(180deg, #ffe4e6 0%, #fcd5d8 100%);
-    color: #dc2626;
-}
-
-.logout-btn:hover {
-    background: linear-gradient(180deg, #fcd5d8 0%, #f8b4b8 100%);
-    border-color: #b91c1c;
+.nav-btn.logout:hover {
+    background-color: #ffe4e6;
+    transform: translateY(-1px);
 }
 
 /* Styles for About Hero Intern Section */
