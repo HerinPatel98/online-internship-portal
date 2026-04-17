@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 if (!isset($_SESSION['admin'])) {
     header("Location: admin_login.php");
@@ -6,10 +7,18 @@ if (!isset($_SESSION['admin'])) {
 }
 require_once "./connection.php";
 
-// Get user id from query string
 $user_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($user_id <= 0) {
     echo "<div style='color:red;'>Invalid user ID.</div>";
+    exit();
+}
+
+$user_query = "SELECT user_id, fname, lname, username, email, language1, language2, experience FROM user WHERE user_id = $user_id";
+$user_result = mysqli_query($db, $user_query);
+$user = mysqli_fetch_assoc($user_result);
+
+if (!$user) {
+    echo "<div style='color:red;'>User not found.</div>";
     exit();
 }
 
@@ -97,139 +106,298 @@ usort($all_apps, function ($a, $b) {
 });
 
 ?>
-<!DOCTYPE html>
-<html>
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>User Applications | Hero Intern</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Management Console | Hero Intern</title>
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <style>
+        :root {
+            --bg-body: #f0f2f5;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #10b981;
+            --card-radius: 20px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+        }
+
         body {
-            background-color: #f8f9fa;
+            background-color: var(--bg-body);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #1e293b;
         }
 
-        .container.custom-app-container {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(120, 144, 156, 0.10);
-            padding: 32px 24px;
+        .main-container {
+            max-width: 1300px;
+            margin: 40px auto;
+            padding: 0 20px;
         }
 
-        .user-details-title {
-            color: #2575fc;
-        }
-
-        .table-user-details {
-            width: 75%;
-            margin-bottom: 1.5rem;
-        }
-
-        .applications-title {
-            color: #2575fc;
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
         }
 
         .btn-back {
-            background: #2575fc;
-            color: #fff;
-            border-radius: 1.1rem;
-            padding: 8px 18px;
-            border: none;
-            transition: background 0.6s;
+            background: #ffffff;
+            color: #64748b;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
         }
 
         .btn-back:hover {
-            background: #1952a6 !important;
-            color: #fff !important;
+            background: #f8fafc;
+            color: var(--primary);
+            border-color: var(--primary);
         }
 
-        @media (max-width: 900px) {
-            .table-user-details {
-                width: 100%;
-            }
+        /* Layout Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: #ffffff;
+            border-radius: var(--card-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 40px;
+        }
+
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0 auto 20px;
+        }
+
+        .profile-name {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .profile-username {
+            text-align: center;
+            color: #64748b;
+            display: block;
+            margin-bottom: 25px;
+        }
+
+        .info-group {
+            border-top: 1px solid #f1f5f9;
+            padding: 15px 0;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #94a3b8;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #334155;
+            word-break: break-all;
+        }
+
+        /* Application List */
+        .content-card {
+            background: #ffffff;
+            border-radius: var(--card-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Modern Table */
+        .table-custom {
+            margin-top: 10px;
+        }
+
+        .table-custom thead th {
+            background: #f8fafc;
+            border: none;
+            color: #64748b;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            padding: 15px;
+        }
+
+        .table-custom tbody td {
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .badge-type {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        .type-course { background: #e0e7ff; color: #4338ca; }
+        .type-internship { background: #dcfce7; color: #15803d; }
+        .type-job { background: #fef9c3; color: #854d0e; }
+
+        .btn-remove {
+            text-decoration: none;
+            background: #fff1f2;
+            color: #e11d48;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            transition: 0.3s;
+        }
+
+        .btn-remove:hover { background: #ffe4e6; transform: scale(1.05); }
+
+        @media (max-width: 1000px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .profile-card { position: relative; top: 0; }
         }
     </style>
 </head>
-
 <body>
-    <div class="container mt-4 custom-app-container">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="user-details-title">User Details</h2>
-            <a href="allUsers.php" class="btn btn-back">&larr; Back</a>
+
+    <div class="main-container">
+        <div class="top-bar">
+            <h2 style="font-weight: 900; letter-spacing: -1px;">User Intelligence</h2>
+            <a href="allUsers.php" class="btn-back">← Back to Directory</a>
         </div>
-        <table class="table table-bordered table-responsive table-hover table-user-details">
-            <tr>
-                <th>User ID</th>
-                <td><?= htmlspecialchars($user['user_id']) ?></td>
-            </tr>
-            <tr>
-                <th>Name</th>
-                <td><?= htmlspecialchars($user['fname'] . ' ' . $user['lname']) ?></td>
-            </tr>
-            <tr>
-                <th>Username</th>
-                <td><?= htmlspecialchars($user['username']) ?></td>
-            </tr>
-            <tr>
-                <th>Email</th>
-                <td><?= htmlspecialchars($user['email']) ?></td>
-            </tr>
-            <tr>
-                <th>Language 1</th>
-                <td><?= htmlspecialchars($user['language1']) ?></td>
-            </tr>
-            <tr>
-                <th>Language 2</th>
-                <td><?= htmlspecialchars($user['language2']) ?></td>
-            </tr>
-            <tr>
-                <th>Experience</th>
-                <td><?= htmlspecialchars($user['experience']) ?></td>
-            </tr>
-        </table>
-        <h3 class="applications-title">Applications</h3>
-        <?php if (isset($_GET['msg']) && $_GET['msg']): ?>
-            <div class="alert alert-<?= isset($_GET['msgtype']) ? htmlspecialchars($_GET['msgtype']) : 'info' ?> alert-dismissible fade show" role="alert">
+
+        <?php if (isset($_GET['msg'])): ?>
+            <div class="alert alert-<?= htmlspecialchars($_GET['msgtype'] ?? 'info') ?> border-0 shadow-sm rounded-4 mb-4">
                 <?= htmlspecialchars($_GET['msg']) ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr class="text-center">
-                        <th>#</th>
-                        <th>Type</th>
-                        <th>Title</th>
-                        <th>Language</th>
-                        <th>Price</th>
-                        <th>Req. Exp.</th>
-                        <th>Applied At</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $i = 1;
-                    foreach ($all_apps as $app) {
-                        echo '<tr class="text-center">';
-                        echo '<td>' . $i++ . '</td>';
-                        echo '<td>' . htmlspecialchars(ucfirst($app['type'])) . '</td>';
-                        echo '<td>' . htmlspecialchars($app['title']) . '</td>';
-                        echo '<td>' . htmlspecialchars($app['language']) . '</td>';
-                        echo '<td>' . htmlspecialchars($app['amount']) . '</td>';
-                        echo '<td>' . htmlspecialchars($app['req_exp']) . '</td>';
-                        echo '<td>' . htmlspecialchars($app['application_date']) . '</td>';
-                        echo '<td><a href="viewApplications.php?id=' . $user_id . '&remove_type=' . $app['type'] . '&remove_id=' . $app['id'] . '" class="btn btn-danger btn-sm" onclick="return confirm(\'Remove this application?\')">Remove</a></td>';
-                        echo '</tr>';
-                    }
-                    if ($i === 1) {
-                        echo '<tr><td colspan="7" class="text-center">No applications found.</td></tr>';
-                    }
-                    ?>
-                </tbody>
-            </table>
+
+        <div class="dashboard-grid">
+            <aside class="profile-card">
+                <div class="avatar-circle">
+                    <?= strtoupper(substr($user['fname'], 0, 1)) ?>
+                </div>
+                <h3 class="profile-name"><?= htmlspecialchars($user['fname'] . ' ' . $user['lname']) ?></h3>
+                <span class="profile-username">@<?= htmlspecialchars($user['username']) ?></span>
+
+                <div class="info-group">
+                    <span class="info-label">Email Address</span>
+                    <span class="info-value"><?= htmlspecialchars($user['email']) ?></span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Tech Stack</span>
+                    <div class="mt-2">
+                        <span class="badge bg-light text-dark border"><?= htmlspecialchars($user['language1']) ?></span>
+                        <span class="badge bg-light text-dark border"><?= htmlspecialchars($user['language2']) ?></span>
+                    </div>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Industry Experience</span>
+                    <span class="info-value"><?= htmlspecialchars($user['experience']) ?> Years</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">System UID</span>
+                    <span class="info-value">#<?= htmlspecialchars($user['user_id']) ?></span>
+                </div>
+            </aside>
+
+            <section class="content-card">
+                <h3 class="section-title">
+                    <span>📋</span> Active Applications
+                </h3>
+                
+                <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Listing Title</th>
+                                <th>Pricing/Exp</th>
+                                <th>Applied Date</th>
+                                <th class="text-end">Management</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($all_apps as $app): ?>
+                            <tr>
+                                <td>
+                                    <span class="badge-type type-<?= $app['type'] ?>">
+                                        <?= $app['type'] ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 700;"><?= htmlspecialchars($app['title']) ?></div>
+                                    <small class="text-muted"><?= htmlspecialchars($app['language'] ?: 'N/A') ?></small>
+                                </td>
+                                <td>
+                                    <?php if($app['type'] == 'job'): ?>
+                                        <span style="color: #854d0e; font-weight: 700;"><?= htmlspecialchars($app['req_exp']) ?> Yrs Exp</span>
+                                    <?php else: ?>
+                                        <span style="color: #15803d; font-weight: 700;">₹<?= number_format($app['amount']) ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <div style="font-size: 0.85rem; font-weight: 600; color: #64748b;">
+                                        <?= date('M d, Y', strtotime($app['application_date'])) ?>
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <a href="viewApplications.php?id=<?= $user_id ?>&remove_type=<?= $app['type'] ?>&remove_id=<?= $app['id'] ?>" 
+                                       class="btn-remove" 
+                                       onclick="return confirm('Remove application permanently?')">
+                                        Delete
+                                    </a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                            <?php if (empty($all_apps)): ?>
+                                <tr><td colspan="5" class="text-center py-5 text-muted">No application records found for this user.</td></tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
     </div>
+
+    <script src="../js/bootstrap.bundle.min.js"></script>
 </body>
-<script src="../js/bootstrap.bundle.min.js"></script>
 </html>

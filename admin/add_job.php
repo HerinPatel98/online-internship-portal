@@ -3,56 +3,156 @@
 require_once "./connection.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = $_POST['title'];
-    $description = $_POST['description'];
-    $position = $_POST['position'];
-    $req_exp = $_POST['req_exp'];
+    // Sanitize inputs to protect your database
+    $title = mysqli_real_escape_string($db, $_POST['title']);
+    $description = mysqli_real_escape_string($db, $_POST['description']);
+    $position = mysqli_real_escape_string($db, $_POST['position']);
+    $req_exp = mysqli_real_escape_string($db, $_POST['req_exp']);
 
-    $insert_query = "INSERT INTO job (title, description, position, req_exp) VALUES ('$title', '$description', '$position', '$req_exp')";
+    // Insert query using sanitized variables
+    $insert_query = "INSERT INTO job (title, description, position, req_exp) 
+                     VALUES ('$title', '$description', '$position', '$req_exp')";
 
     if (mysqli_query($db, $insert_query)) {
-        $success_message = "Job added successfully!";
+        $success_message = "New job opening published successfully!";
     } else {
-        $error_message = "Error: " . mysqli_error($db);
+        $error_message = "Database Error: " . mysqli_error($db);
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Add Job</title>
-    <link rel="stylesheet" href="../styles/admin_dashboard.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Job | Hero Admin</title>
     <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg-light: #f4f7fe;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            font-family: 'Inter', system-ui, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .form-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 650px;
+            padding: 3rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-header h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            outline: none;
+        }
+
+        .btn-submit {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            width: 100%;
+            margin-top: 1.5rem;
+            transition: 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-cancel {
+            text-decoration: none;
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 2rem;
+        }
+    </style>
 </head>
-<body style="background-color: #f8f9fa;">
-    <div class="container mt-5" style="background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 style="color: #343a40;">Add New Job</h2>
-            <a href="admin_dashboard.php" class="btn btn-back-dashboard">&larr; Dashboard</a>
+<body>
+
+    <div class="form-card">
+        <div class="form-header text-center mb-5">
+            <h2>Add New Job Opening</h2>
+            <p class="text-muted">Broadcast a new full-time position to your user network.</p>
         </div>
-        <?php if (isset($success_message)) { echo "<div class='alert alert-success'>$success_message</div>"; } ?>
-        <?php if (isset($error_message)) { echo "<div class='alert alert-danger'>$error_message</div>"; } ?>
-        <form method="POST" action="">
-            <div class="mb-3">
-                <label for="title" class="form-label" style="color: #495057;">Job Title</label>
-                <input type="text" class="form-control" id="title" name="title" style="border: 1px solid #ced4da; border-radius: 5px;" required>
+
+        <?php if (isset($success_message)): ?>
+            <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4"><?php echo $success_message; ?></div>
+        <?php endif; ?>
+
+        <?php if (isset($error_message)): ?>
+            <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-4"><?php echo $error_message; ?></div>
+        <?php endif; ?>
+
+        <form method="POST">
+            <div class="mb-4">
+                <label for="title" class="form-label">Job Title</label>
+                <input type="text" class="form-control" id="title" name="title" placeholder="e.g. Senior Backend Engineer" required>
             </div>
-            <div class="mb-3">
-                <label for="description" class="form-label" style="color: #495057;">Description</label>
-                <textarea class="form-control" id="description" name="description" rows="3" style="border: 1px solid #ced4da; border-radius: 5px;" required></textarea>
+
+            <div class="mb-4">
+                <label for="description" class="form-label">Job Description</label>
+                <textarea class="form-control" id="description" name="description" rows="4" placeholder="Describe the day-to-day responsibilities..." required></textarea>
             </div>
-            <div class="mb-3">
-                <label for="position" class="form-label" style="color: #495057;">Position</label>
-                <input type="text" class="form-control" id="position" name="position" style="border: 1px solid #ced4da; border-radius: 5px;" required>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label for="position" class="form-label">Available Positions</label>
+                    <input type="number" class="form-control" id="position" name="position" placeholder="e.g. 5" required>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label for="req_exp" class="form-label">Experience Required (Years)</label>
+                    <input type="number" class="form-control" id="req_exp" name="req_exp" placeholder="e.g. 2" required>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="req_exp" class="form-label" style="color: #495057;">Required Experience</label>
-                <input type="text" class="form-control" id="req_exp" name="req_exp" style="border: 1px solid #ced4da; border-radius: 5px;" required>
+
+            <button type="submit" class="btn-submit">Publish Job Opening</button>
+            
+            <div class="text-center">
+                <a href="admin_dashboard.php" class="btn-cancel">← Back to Admin Dashboard</a>
             </div>
-            <button type="submit" class="btn btn-primary" style="background-color: #007bff; border-color: #007bff;">Add Job</button>
         </form>
     </div>
-    <script src="../js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
