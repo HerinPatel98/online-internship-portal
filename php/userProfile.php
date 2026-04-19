@@ -128,8 +128,8 @@ $user = mysqli_fetch_assoc($result);
             <dt>Password</dt>
             <dd>
                 <?php
-                    $hiddenText = $user['password'] ?? '';
-                    echo str_repeat('*', strlen($hiddenText));
+                   
+                    echo str_repeat('*', 8);
                 ?>
             </dd>
             <dt>Primary Language</dt>

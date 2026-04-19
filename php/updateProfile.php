@@ -1,11 +1,12 @@
 <?php
-// filepath: c:\xampp\htdocs\Hero_Intern\php\updateProfile.php
 session_start();
 if (!isset($_SESSION['username'])) {
     echo "<script>alert('You need to login first!');window.location.href='login.php';</script>";
     exit();
 }
 require_once("connection.php");
+require_once("security_helper.php"); // Load your security class
+
 $username = $_SESSION['username'];
 
 // Fetch current user data
@@ -13,27 +14,40 @@ $query = "SELECT * FROM user WHERE username = '$username'";
 $result = mysqli_query($db, $query);
 $user = mysqli_fetch_assoc($result);
 
-// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $fname = mysqli_real_escape_string($db, $_POST['fname']);
-    $lname = mysqli_real_escape_string($db, $_POST['lname']);
-    $email = mysqli_real_escape_string($db, $_POST['email']);
-    $password = mysqli_real_escape_string($db, $_POST['password']);
-    $language1 = mysqli_real_escape_string($db, $_POST['language1']);
-    $language2 = mysqli_real_escape_string($db, $_POST['language2']);
-    $experience = mysqli_real_escape_string($db, $_POST['experience']);
+    // Sanitize all inputs using your SecurityHelper
+    $fname = SecurityHelper::validateInput($_POST['fname']);
+    $lname = SecurityHelper::validateInput($_POST['lname']);
+    $email = SecurityHelper::validateInput($_POST['email']);
+    $language1 = SecurityHelper::validateInput($_POST['language1']);
+    $language2 = SecurityHelper::validateInput($_POST['language2']);
+    $experience = SecurityHelper::validateInput($_POST['experience']);
+    
+    // Password Logic:
+    // We check if the password in the form matches the hashed password in the DB.
+    // If it's different, it means the user typed a new plain-text password.
+    $inputPassword = $_POST['password'];
+    
+    if (!empty($_POST['password'])) {
+        // User wants a new password -> Hash it
+        $finalPassword = SecurityHelper::hashPassword($_POST['password']);
+    } else {
+        // User left it blank -> Use the OLD hash already in the $user array
+        $finalPassword = $user['password']; 
+    }
 
     $updateQuery = "UPDATE user SET 
         fname='$fname', 
         lname='$lname', 
         email='$email', 
-        password='$password', 
+        password='$finalPassword', 
         language1='$language1', 
         language2='$language2', 
         experience='$experience'
         WHERE username='$username'";
 
     if (mysqli_query($db, $updateQuery)) {
+        SecurityHelper::logSecurityEvent("Profile updated for user: " . $username);
         echo "<script>alert('Profile updated successfully!');window.location.href='userProfile.php';</script>";
         exit();
     } else {
@@ -196,8 +210,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="email" name="email" id="email" required value="<?= htmlspecialchars($user['email'] ?? '') ?>">
                     </td>
                     <td class="profile-td-right">
-                        <label for="password">Password</label>
-                        <input type="password" name="password" id="password" required value="<?= htmlspecialchars($user['password'] ?? '') ?>">
+                        <label for="password">New Password (leave blank to keep current)</label>
+                        <input type="password" name="password" id="password" placeholder="********">
                     </td>
                 </tr>
                 <tr>
