@@ -2,7 +2,7 @@
 session_start();
 
 // Database connection
-require 'db_connection.php';
+require 'connection.php';
 
 // Function to generate CSRF token
 function generateCsrfToken() {
