@@ -165,7 +165,7 @@
             <span class="rocket">🚀</span>
             <h4>Welcome Back!</h4>
             <p style="font-size: 0.9rem; color: #64748b;">Ready to continue your application?</p>
-            <form method="post" action="./login.php">
+            <form method="get" action="./login.php">
                 <button class="apply-btn" type="submit" name="apply_now">LOGIN TO PORTAL</button>
             </form>
         </div>

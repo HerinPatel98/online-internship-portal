@@ -223,9 +223,5 @@ Prevents attackers from creating accounts/logging in on behalf of users:
 
 ---
 
-## Questions?
-
-Contact the security team or create an issue on this PR with security concerns.
-
 **Last Updated:** 2026-04-18
 **Status:** ✅ Ready for Review
