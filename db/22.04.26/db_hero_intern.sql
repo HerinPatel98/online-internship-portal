@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 10, 2025 at 02:46 PM
+-- Generation Time: Apr 22, 2026 at 12:16 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -60,10 +60,11 @@ CREATE TABLE `course` (
 --
 
 INSERT INTO `course` (`course_id`, `title`, `description`, `language`, `duration`, `price`) VALUES
-(1, 'Web Development', 'Learn to build websites and web apps', 'English', '3 Months', 4999),
-(3, 'Android App Dev', 'Build Android apps from scratch', 'English', '2 Months', 3999),
+(1, 'Web Development', 'Learn to build websites and web apps', 'Asp', '3 Months', 4999),
+(3, 'Android App Dev', 'Build Android apps from scratch', 'kotlin', '2 Months', 3999),
 (4, 'Python Novice', 'Perfect course for newbie coders.', 'python', '5 weeks', 23000),
-(5, 'Vue.Js Intermediate', 'Intermediate course for frontend using Vue.', 'JavaScript', '2 weeks', 12999);
+(5, 'Vue.Js Intermediate', 'Intermediate course for frontend using Vue.', 'JavaScript', '2 weeks', 15999),
+(6, 'C++ master class', 'Learn basics to advance system programming with c++', 'c++', '3 Months', 12300);
 
 -- --------------------------------------------------------
 
@@ -87,7 +88,8 @@ INSERT INTO `internship` (`internship_id`, `title`, `description`, `req_language
 (1, 'Software Intern', 'Work on real software projects', 'Python', 23000),
 (2, 'Marketing Intern', 'Assist in digital marketing campaigns', 'English', 25000),
 (3, 'Content Writer Intern', 'Write blogs and articles for our platform', 'English', 20500),
-(5, 'Digital Marketing Intern', 'Extraordinary internship for digital marketing skills.', 'English', 13999);
+(5, 'Digital Marketing Intern', 'Extraordinary internship for digital marketing skills.', 'English', 13999),
+(6, 'Project manager Intern', 'Team lead, product design, planning.', 'SDLC, CAD', 54000);
 
 -- --------------------------------------------------------
 
@@ -109,8 +111,9 @@ CREATE TABLE `job` (
 
 INSERT INTO `job` (`job_id`, `title`, `description`, `position`, `req_exp`) VALUES
 (1, 'Frontend Developer', 'Develop UI for web apps', 0, 1),
-(3, 'Android Developer', 'Develop Android mobile apps', 4, 1),
-(4, 'Html developer', 'Post for odoo developer', 3, 2);
+(3, 'Android Developer', 'Develop Android mobile apps', 3, 1),
+(4, 'Html developer', 'Post for odoo developer', 1, 2),
+(5, 'Oracle DB Admin', 'Oracle database administrator.', 1, 5);
 
 -- --------------------------------------------------------
 
@@ -123,7 +126,7 @@ CREATE TABLE `user` (
   `fname` varchar(20) NOT NULL,
   `lname` varchar(20) NOT NULL,
   `username` varchar(20) NOT NULL,
-  `password` int(11) NOT NULL,
+  `password` varchar(255) NOT NULL,
   `email` varchar(50) NOT NULL,
   `language1` varchar(20) NOT NULL,
   `language2` varchar(20) NOT NULL,
@@ -135,9 +138,8 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`user_id`, `fname`, `lname`, `username`, `password`, `email`, `language1`, `language2`, `experience`) VALUES
-(1, 'Herin', 'BT', 'user2', 1234, 'user2.demo@gmail.com', 'php', 'css', 6),
-(6, 'Messi', 'Goat', 'User3', 1234, 'fcbayern@football.gmail', 'English', 'Html', 5),
-(7, 'Virat', 'Kohli', 'Chikoo', 1234, 'kohli@bcci.gmail.com', 'Android', 'kotlin', 9);
+(26, 'Rohit', 'Sharma', 'Hitman', '$2y$10$wgOV6Y.O/vRh.n4EEw6/FuDPcF8F5jS1/Iz8N./PF5g5G8RW2d.nG', 'sharma45@gmail.com', 'Kotlin', 'Php', 3),
+(27, 'Demo', 'Test', 'User_demo', '1234', 'user2.demo@gmail.com', 'php', 'html', 1);
 
 -- --------------------------------------------------------
 
@@ -152,15 +154,6 @@ CREATE TABLE `user_course` (
   `application_date` date NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `user_course`
---
-
-INSERT INTO `user_course` (`id`, `user_id`, `course_id`, `application_date`) VALUES
-(4, 6, 5, '2025-08-07'),
-(6, 7, 5, '2025-08-10'),
-(8, 7, 3, '2025-08-10');
-
 -- --------------------------------------------------------
 
 --
@@ -173,14 +166,6 @@ CREATE TABLE `user_internship` (
   `internship_id` int(11) NOT NULL,
   `application_date` date NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `user_internship`
---
-
-INSERT INTO `user_internship` (`id`, `user_id`, `internship_id`, `application_date`) VALUES
-(2, 1, 1, '2025-07-31'),
-(4, 7, 2, '2025-08-10');
 
 -- --------------------------------------------------------
 
@@ -256,7 +241,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY INVOKER VIEW 
 --
 DROP TABLE IF EXISTS `vw_user_internship`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_user_internship`  AS SELECT `user`.`user_id` AS `user_id`, `internship`.`title` AS `title`, `internship`.`description` AS `description`, `internship`.`req_language` AS `req_language`, `internship`.`price` AS `price`, `user_internship`.`application_date` AS `application_date` FROM ((`user` join `internship`) join `user_internship`) WHERE `user`.`user_id` = `user_internship`.`user_id` AND `internship`.`internship_id` = `user_internship`.`id` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY INVOKER VIEW `vw_user_internship`  AS SELECT `u`.`user_id` AS `user_id`, `i`.`title` AS `title`, `i`.`description` AS `description`, `i`.`req_language` AS `req_language`, `i`.`price` AS `price`, `ui`.`application_date` AS `application_date` FROM ((`user` `u` join `user_internship` `ui` on(`u`.`user_id` = `ui`.`user_id`)) join `internship` `i` on(`i`.`internship_id` = `ui`.`internship_id`)) ;
 
 -- --------------------------------------------------------
 
@@ -317,13 +302,17 @@ ALTER TABLE `user_course`
 ALTER TABLE `user_internship`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `user_id` (`user_id`,`internship_id`),
-  ADD KEY `fk_internship_id` (`internship_id`);
+  ADD KEY `fk_internship_id` (`internship_id`),
+  ADD KEY `fk_user_id_internship` (`user_id`);
 
 --
 -- Indexes for table `user_job`
 --
 ALTER TABLE `user_job`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `user_id` (`user_id`,`job_id`),
+  ADD KEY `fk_user_id_job` (`user_id`),
+  ADD KEY `fk_job_id` (`job_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -339,43 +328,43 @@ ALTER TABLE `admin`
 -- AUTO_INCREMENT for table `course`
 --
 ALTER TABLE `course`
-  MODIFY `course_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `course_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `internship`
 --
 ALTER TABLE `internship`
-  MODIFY `internship_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `internship_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `job`
 --
 ALTER TABLE `job`
-  MODIFY `job_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `job_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `user_course`
 --
 ALTER TABLE `user_course`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `user_internship`
 --
 ALTER TABLE `user_internship`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `user_job`
 --
 ALTER TABLE `user_job`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Constraints for dumped tables
@@ -392,7 +381,15 @@ ALTER TABLE `user_course`
 -- Constraints for table `user_internship`
 --
 ALTER TABLE `user_internship`
-  ADD CONSTRAINT `fk_internship_id` FOREIGN KEY (`internship_id`) REFERENCES `internship` (`internship_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_internship_id` FOREIGN KEY (`internship_id`) REFERENCES `internship` (`internship_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_user_id_internship` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `user_job`
+--
+ALTER TABLE `user_job`
+  ADD CONSTRAINT `fk_job_id` FOREIGN KEY (`job_id`) REFERENCES `job` (`job_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_user_id_job` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -25,7 +25,7 @@ class SecurityHelper {
     }
 
     // Security Logging
-    public static function logSecurityEvent($event {
+    public static function logSecurityEvent($event) {
         $logFile = 'security.log';
         $timestamp = date('Y-m-d H:i:s');
         file_put_contents($logFile, "[".$timestamp."] " . $event . "\n", FILE_APPEND);
